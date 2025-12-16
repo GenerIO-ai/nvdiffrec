@@ -117,7 +117,8 @@ class EnvironmentLight(torch.nn.Module):
             # Roughness adjusted specular env lookup
             miplevel = self.get_mip(roughness)
             spec = dr.texture(self.specular[0][None, ...], reflvec.contiguous(), mip=list(m[None, ...] for m in self.specular[1:]), mip_level_bias=miplevel[..., 0], filter_mode='linear-mipmap-linear', boundary_mode='cube')
-
+            spec = torch.lerp(spec, diffuse, roughness)
+            
             # Compute aggregate lighting
             reflectance = spec_col * fg_lookup[...,0:1] + fg_lookup[...,1:2]
             shaded_col += spec * reflectance
